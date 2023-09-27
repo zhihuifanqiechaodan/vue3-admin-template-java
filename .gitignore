@@ -1,0 +1,14 @@
+.idea
+*.iws
+*.iml
+*.ipr
+
+!*/build/*.java
+!*/build/*.html
+!*/build/*.xml
+
+target
+**/target/**
+src/main/resources/application-local.yaml
+logs/
+
