@@ -1,0 +1,35 @@
+接口请求路径
+http://localhost:8080/system/info
+
+系统地址
+http://192.168.0.115:9527/vue3-admin-template/
+
+swagger地址
+http://localhost:8080/swagger-ui.html
+http://localhost:8080/doc.html#/home
+
+数据库信息
+MYSQL_HOST = 81.70.198.15
+MYSQL_USERNAME = gaoyu
+MYSQL_PASSWORD = 19921010gaoyuG
+MYSQL_PORT = 3306
+MYSQL_DATABASE = vue3_admin_template
+
+
+登录：login
+获取菜单列表：get_menu_list
+全部菜单列表：get_all_menu_list
+新建菜单：add_menu
+
+角色列表：get_role_list
+新增角色：add_role
+编辑角色:update_role
+
+用户列表:get_user_list
+新增用户：add_user
+编辑用户：update_user
+编辑用户菜单权限:update_user_menu
+
+
+
+菜单编辑、菜单排序
