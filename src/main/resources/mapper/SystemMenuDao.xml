@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.admin.template.dao.SystemMenuDao">
+
+    <resultMap type="com.admin.template.domain.SystemMenuDo" id="SystemMenuMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="parentId" column="parent_id" jdbcType="INTEGER"/>
+        <result property="buttonId" column="button_id" jdbcType="INTEGER"/>
+        <result property="type" column="type" jdbcType="INTEGER"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="icon" column="icon" jdbcType="VARCHAR"/>
+        <result property="hidden" column="hidden" jdbcType="INTEGER"/>
+        <result property="show" column="show" jdbcType="INTEGER"/>
+        <result property="cache" column="cache" jdbcType="INTEGER"/>
+        <result property="breadcrumb" column="breadcrumb" jdbcType="INTEGER"/>
+        <result property="affix" column="affix" jdbcType="INTEGER"/>
+        <result property="auth" column="auth" jdbcType="INTEGER"/>
+        <result property="activeMenu" column="active_menu" jdbcType="VARCHAR"/>
+        <result property="layout" column="layout" jdbcType="VARCHAR"/>
+        <result property="cataloguePath" column="catalogue_path" jdbcType="VARCHAR"/>
+        <result property="path" column="path" jdbcType="VARCHAR"/>
+        <result property="sort" column="sort" jdbcType="INTEGER"/>
+        <result property="deleted" column="deleted" jdbcType="INTEGER"/>
+        <result property="creator" column="creator" jdbcType="INTEGER"/>
+        <result property="updater" column="updater" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <!--全量字段-->
+    <sql id="base_columns">
+        id
+        , parent_id, button_id, `type`, title, icon, `hidden`, `show`, `cache`, `breadcrumb`, `affix`, `auth`, `active_menu`, `layout`, `catalogue_path`, `path`, `sort`, deleted, creator, updater, create_time, update_time
+    </sql>
+    <!--分页、统计查询条件-->
+    <sql id="query_filter">
+        <where>
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+            <if test="parentId != null">
+                AND parent_id = #{parentId}
+            </if>
+            <if test="buttonId != null">
+                AND button_id = #{buttonId}
+            </if>
+            <if test="type != null">
+                AND `type` = #{type}
+            </if>
+            <if test="title != null and title != ''">
+                AND `title` = #{title}
+            </if>
+            <if test="icon != null and icon != ''">
+                AND `icon` = #{icon}
+            </if>
+            <if test="hidden != null">
+                AND `hidden` = #{hidden}
+            </if>
+            <if test="show != null">
+                AND `show` = #{show}
+            </if>
+            <if test="cache != null">
+                AND `cache` = #{cache}
+            </if>
+            <if test="breadcrumb != null">
+                AND `breadcrumb` = #{breadcrumb}
+            </if>
+            <if test="affix != null">
+                AND `affix` = #{affix}
+            </if>
+            <if test="auth != null">
+                AND `auth` = #{auth}
+            </if>
+            <if test="activeMenu != null and activeMenu != ''">
+                AND `active_menu` = #{activeMenu}
+            </if>
+            <if test="layout != null and layout != ''">
+                AND `layout` = #{layout}
+            </if>
+            <if test="cataloguePath != null and cataloguePath != ''">
+                AND `catalogue_path` = #{cataloguePath}
+            </if>
+            <if test="path != null and path != ''">
+                AND `path` = #{path}
+            </if>
+            <if test="sort != null">
+                AND `sort` = #{sort}
+            </if>
+            <if test="deleted != null">
+                AND deleted = #{deleted}
+            </if>
+            <if test="creator != null">
+                AND creator = #{creator}
+            </if>
+            <if test="updater != null">
+                AND updater = #{updater}
+            </if>
+            <if test="createTime != null">
+                AND create_time = #{createTime}
+            </if>
+            <if test="updateTime != null">
+                AND update_time = #{updateTime}
+            </if>
+        </where>
+    </sql>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="SystemMenuMap">
+        SELECT
+        <include refid="base_columns"/>
+        FROM system_menu
+        WHERE id = #{id}
+    </select>
+
+    <!--查询多条-->
+    <select id="queryByIds" resultMap="SystemMenuMap">
+        SELECT
+        <include refid="base_columns"/>
+        FROM system_menu
+        WHERE id in
+        <foreach collection="ids" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="SystemMenuMap">
+        SELECT
+        <include refid="base_columns"/>
+        FROM system_menu
+        <include refid="query_filter"/>
+        <if test="offset != null and pageSize != null">
+            LIMIT #{offset}, #{pageSize}
+        </if>
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        SELECT COUNT(1)
+        FROM system_menu
+        <include refid="query_filter"/>
+    </select>
+
+    <!--新增-->
+    <insert id="insertSelective" parameterType="com.admin.template.domain.SystemMenuDo" useGeneratedKeys="true"
+            keyProperty="id"
+            keyColumn="id">
+        INSERT INTO system_menu
+        <set>
+            <if test="parentId != null">
+                `parent_id` = #{parentId},
+            </if>
+            <if test="buttonId != null">
+                `button_id` = #{buttonId},
+            </if>
+            <if test="type != null">
+                `type` = #{type},
+            </if>
+            <if test="title != null and title != ''">
+                `title` = #{title},
+            </if>
+            <if test="icon != null and icon != ''">
+                `icon` = #{icon},
+            </if>
+            <if test="hidden != null">
+                `hidden` = #{hidden},
+            </if>
+            <if test="show != null">
+                `show` = #{show},
+            </if>
+            <if test="cache != null">
+                `cache` = #{cache},
+            </if>
+            <if test="breadcrumb != null">
+                `breadcrumb` = #{breadcrumb},
+            </if>
+            <if test="affix != null">
+                `affix` = #{affix},
+            </if>
+            <if test="auth != null">
+                `auth` = #{auth},
+            </if>
+            <if test="activeMenu != null and activeMenu != ''">
+                `active_menu` = #{activeMenu},
+            </if>
+            <if test="layout != null and layout != ''">
+                `layout` = #{layout},
+            </if>
+            <if test="cataloguePath != null and cataloguePath != ''">
+                `catalogue_path` = #{cataloguePath},
+            </if>
+            <if test="path != null and path != ''">
+                `path` = #{path},
+            </if>
+            <if test="sort != null">
+                `sort` = #{sort},
+            </if>
+            <if test="deleted != null">
+                deleted = #{deleted},
+            </if>
+            <if test="creator != null">
+                creator = #{creator},
+            </if>
+            <if test="updater != null">
+                updater = #{updater},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="updateSelective">
+        UPDATE system_menu
+        <set>
+            <if test="parentId != null">
+                `parent_id` = #{parentId},
+            </if>
+            <if test="buttonId != null">
+                `button_id` = #{buttonId},
+            </if>
+            <if test="type != null">
+                `type` = #{type},
+            </if>
+            <if test="title != null and title != ''">
+                `title` = #{title},
+            </if>
+            <if test="icon != null and icon != ''">
+                `icon` = #{icon},
+            </if>
+            <if test="hidden != null">
+                `hidden` = #{hidden},
+            </if>
+            <if test="show != null">
+                `show` = #{show},
+            </if>
+            <if test="cache != null">
+                `cache` = #{cache},
+            </if>
+            <if test="breadcrumb != null">
+                `breadcrumb` = #{breadcrumb},
+            </if>
+            <if test="affix != null">
+                `affix` = #{affix},
+            </if>
+            <if test="auth != null">
+                `auth` = #{auth},
+            </if>
+            <if test="activeMenu != null and activeMenu != ''">
+                `active_menu` = #{activeMenu},
+            </if>
+            <if test="layout != null and layout != ''">
+                `layout` = #{layout},
+            </if>
+            <if test="cataloguePath != null and cataloguePath != ''">
+                `catalogue_path` = #{cataloguePath},
+            </if>
+            <if test="path != null and path != ''">
+                `path` = #{path},
+            </if>
+            <if test="sort != null">
+                `sort` = #{sort},
+            </if>
+            <if test="deleted != null">
+                deleted = #{deleted},
+            </if>
+            <if test="creator != null">
+                creator = #{creator},
+            </if>
+            <if test="updater != null">
+                updater = #{updater},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        UPDATE system_menu
+        SET deleted = 1
+        WHERE id = #{id}
+    </delete>
+
+</mapper>
+

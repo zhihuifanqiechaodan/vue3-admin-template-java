@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.admin.template.dao.SystemUserDao">
+
+    <resultMap type="com.admin.template.domain.SystemUserDo" id="SystemUserMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="roleId" column="role_id" jdbcType="INTEGER"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="deleted" column="deleted" jdbcType="INTEGER"/>
+        <result property="creator" column="creator" jdbcType="INTEGER"/>
+        <result property="updater" column="updater" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <!--全量字段-->
+    <sql id="base_columns">
+        id
+        , username, password, role_id, status, deleted, creator, updater, create_time, update_time
+    </sql>
+    <!--分页、统计查询条件-->
+    <sql id="query_filter">
+        <where>
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+            <if test="username != null and username != ''">
+                AND username = #{username}
+            </if>
+            <if test="password != null and password != ''">
+                AND password = #{password}
+            </if>
+            <if test="roleId != null">
+                AND role_id = #{roleId}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="deleted != null">
+                AND deleted = #{deleted}
+            </if>
+            <if test="creator != null">
+                AND creator = #{creator}
+            </if>
+            <if test="updater != null">
+                AND updater = #{updater}
+            </if>
+            <if test="createTime != null">
+                AND create_time = #{createTime}
+            </if>
+            <if test="updateTime != null">
+                AND update_time = #{updateTime}
+            </if>
+            <if test="roleIds != null and roleIds.size > 0">
+                AND role_id in
+                <foreach collection="roleIds" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </sql>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="SystemUserMap">
+        SELECT
+        <include refid="base_columns"/>
+        FROM system_user
+        WHERE deleted = 0 and id = #{id}
+    </select>
+
+    <!--查询多条-->
+    <select id="queryByIds" resultMap="SystemUserMap">
+        SELECT
+        <include refid="base_columns"/>
+        FROM system_user
+        WHERE id in
+        <foreach collection="ids" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="SystemUserMap">
+        SELECT
+        <include refid="base_columns"/>
+        FROM system_user
+        <include refid="query_filter"/>
+        <if test="offset != null and pageSize != null">
+            LIMIT #{offset}, #{pageSize}
+        </if>
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        SELECT COUNT(1)
+        FROM system_user
+        <include refid="query_filter"/>
+    </select>
+
+    <!--新增-->
+    <insert id="insertSelective" parameterType="com.admin.template.domain.SystemUserDo" useGeneratedKeys="true"
+            keyProperty="id"
+            keyColumn="id">
+        INSERT INTO system_user
+        <set>
+            <if test="username != null and username != ''">
+                username = #{username},
+            </if>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            <if test="roleId != null">
+                role_id = #{roleId},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="deleted != null">
+                deleted = #{deleted},
+            </if>
+            <if test="creator != null">
+                creator = #{creator},
+            </if>
+            <if test="updater != null">
+                updater = #{updater},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="updateSelective">
+        UPDATE system_user
+        <set>
+            <if test="username != null and username != ''">
+                username = #{username},
+            </if>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            <if test="roleId != null">
+                role_id = #{roleId},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="deleted != null">
+                deleted = #{deleted},
+            </if>
+            <if test="creator != null">
+                creator = #{creator},
+            </if>
+            <if test="updater != null">
+                updater = #{updater},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        UPDATE system_user
+        SET deleted = 1
+        WHERE id = #{id}
+    </delete>
+
+</mapper>
+
