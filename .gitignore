@@ -1,0 +1,6 @@
+.idea
+
+**/target/**
+
+admin-template/src/main/resources/application-local.yaml
+
