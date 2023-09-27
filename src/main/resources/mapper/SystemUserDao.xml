@@ -86,6 +86,7 @@
         <include refid="base_columns"/>
         FROM system_user
         <include refid="query_filter"/>
+        ORDER BY id asc
         <if test="offset != null and pageSize != null">
             LIMIT #{offset}, #{pageSize}
         </if>

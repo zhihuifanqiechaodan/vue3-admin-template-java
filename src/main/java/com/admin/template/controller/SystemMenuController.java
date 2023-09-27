@@ -60,4 +60,16 @@ public class SystemMenuController {
     public CommonResult<Integer> addMenu(@RequestHeader("userId") int userId, @RequestBody @Valid AddMenuReqVo reqVo) {
         return CommonResult.success(systemMenuService.addMenu(userId, reqVo));
     }
+
+    /**
+     * 编辑菜单
+     *
+     * @param userId
+     * @return
+     */
+    @ApiOperation("编辑菜单")
+    @PostMapping("update_menu")
+    public CommonResult<Integer> updateMenu(@RequestHeader("userId") int userId, @RequestBody @Valid AddMenuReqVo reqVo) {
+        return CommonResult.success(systemMenuService.updateMenu(userId, reqVo));
+    }
 }

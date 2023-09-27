@@ -88,6 +88,18 @@ public class SystemMenuServiceImpl {
     }
 
     /**
+     * 获取菜单列表
+     *
+     * @return
+     */
+    public List<SystemMenuSvcVo> getAllMenuList() {
+        SystemMenuSvcBean svcBean = new SystemMenuSvcBean();
+        svcBean.setDeleted(0);
+        List<SystemMenuDo> systemMenuDos = systemMenuDao.queryAllByLimit(svcBean);
+        return tranFormSystemMenuDoList(systemMenuDos);
+    }
+
+    /**
      * 新建菜单
      *
      * @param userId
@@ -125,15 +137,37 @@ public class SystemMenuServiceImpl {
         return 1;
     }
 
-    /**
-     * 获取菜单列表
-     *
-     * @return
-     */
-    public List<SystemMenuSvcVo> getAllMenuList() {
-        SystemMenuSvcBean svcBean = new SystemMenuSvcBean();
-        svcBean.setDeleted(0);
-        List<SystemMenuDo> systemMenuDos = systemMenuDao.queryAllByLimit(svcBean);
-        return tranFormSystemMenuDoList(systemMenuDos);
+    public Integer updateMenu(int userId, AddMenuReqVo reqVo) {
+        if (reqVo.getId() == null) {
+            throw ServiceExceptionUtil.exception(ErrorCodeConstants.BAD_REQUEST, "Id不能为空");
+        }
+        if (reqVo.getType().equals(MenuTypeEnum.CATALOGUE.getType())) {
+            if (reqVo.getShow() == null || reqVo.getLayout() == null) {
+                throw ServiceExceptionUtil.exception(ErrorCodeConstants.BAD_REQUEST);
+            }
+        }
+        if (reqVo.getType().equals(MenuTypeEnum.MENU.getType())) {
+            if (reqVo.getCache() == null || reqVo.getBreadcrumb() == null || reqVo.getAffix() == null || reqVo.getPath() == null) {
+                throw ServiceExceptionUtil.exception(ErrorCodeConstants.BAD_REQUEST);
+            }
+        }
+        //更新菜单、目录
+        SystemMenuDo systemMenuDo = new SystemMenuDo();
+        BeanUtil.copyProperties(reqVo, systemMenuDo);
+        systemMenuDo.setUpdater(userId);
+        systemMenuDao.updateSelective(systemMenuDo);
+        //删除菜单目录关联下的button
+        systemMenuDao.deleteByParentId(reqVo.getId());
+        for (ButtonPermissions buttonPermissions : reqVo.getButtonPermissions()) {
+            SystemMenuDo menuDo = new SystemMenuDo();
+            menuDo.setParentId(reqVo.getId());
+            menuDo.setButtonId(buttonPermissions.getValue());
+            menuDo.setType(MenuTypeEnum.BUTTON.getType());
+            menuDo.setTitle(buttonPermissions.getLabel());
+            menuDo.setCreator(userId);
+            menuDo.setUpdater(userId);
+            systemMenuDao.insertSelective(systemMenuDo);
+        }
+        return 1;
     }
 }

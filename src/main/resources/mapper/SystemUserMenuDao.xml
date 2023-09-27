@@ -76,7 +76,10 @@
         <include refid="base_columns"/>
         FROM system_user_menu
         <include refid="query_filter"/>
-        LIMIT #{offset}, #{pageSize}
+        ORDER BY id asc
+        <if test="offset != null and pageSize != null">
+            LIMIT #{offset}, #{pageSize}
+        </if>
     </select>
 
     <!--统计总行数-->

@@ -10,6 +10,9 @@ import java.util.List;
 @Data
 public class AddMenuReqVo {
 
+    @ApiModelProperty(value = "id")
+    private Integer id;
+
     /**
      * 菜单、目录共用字段
      **/

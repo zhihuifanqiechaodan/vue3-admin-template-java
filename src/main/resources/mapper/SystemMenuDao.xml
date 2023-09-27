@@ -128,6 +128,7 @@
         <include refid="base_columns"/>
         FROM system_menu
         <include refid="query_filter"/>
+        ORDER BY sort asc,id asc
         <if test="offset != null and pageSize != null">
             LIMIT #{offset}, #{pageSize}
         </if>
@@ -284,10 +285,10 @@
     </update>
 
     <!--通过主键删除-->
-    <delete id="deleteById">
+    <delete id="deleteByParentId">
         UPDATE system_menu
         SET deleted = 1
-        WHERE id = #{id}
+        WHERE `parent_id` = #{parentId}
     </delete>
 
 </mapper>

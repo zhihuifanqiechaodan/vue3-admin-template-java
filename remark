@@ -15,6 +15,9 @@ MYSQL_PASSWORD = 19921010gaoyuG
 MYSQL_PORT = 3306
 MYSQL_DATABASE = vue3_admin_template
 
+http://jenkins.zhihuifanqiechaodan.com/
+yangqian
+123456
 
 登录：login
 获取菜单列表：get_menu_list
@@ -32,4 +35,6 @@ MYSQL_DATABASE = vue3_admin_template
 
 
 
-菜单编辑、菜单排序
+菜单编辑：update_menu
+
+、菜单排序
