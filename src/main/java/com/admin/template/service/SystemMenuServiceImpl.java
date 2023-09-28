@@ -18,6 +18,7 @@ import com.admin.template.exception.ErrorCodeConstants;
 import com.admin.template.exception.ServiceExceptionUtil;
 import com.admin.template.request.AddMenuReqVo;
 import com.admin.template.request.ButtonPermissions;
+import com.admin.template.request.MenuSortReqVo;
 import com.admin.template.utils.CollectionUtils;
 import com.admin.template.vo.SystemMenuSvcVo;
 import org.springframework.stereotype.Service;
@@ -167,6 +168,27 @@ public class SystemMenuServiceImpl {
             menuDo.setCreator(userId);
             menuDo.setUpdater(userId);
             systemMenuDao.insertSelective(systemMenuDo);
+        }
+        return 1;
+    }
+
+    /**
+     * 菜单排序
+     *
+     * @param userId
+     * @param reqVo
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Integer menuSort(int userId, MenuSortReqVo reqVo) {
+        int sort = 0;
+        for (Integer menuId : reqVo.getMenuIds()) {
+            SystemMenuDo systemMenuDo = new SystemMenuDo();
+            systemMenuDo.setId(menuId);
+            systemMenuDo.setSort(sort);
+            systemMenuDo.setUpdater(userId);
+            systemMenuDao.updateSelective(systemMenuDo);
+            sort++;
         }
         return 1;
     }
