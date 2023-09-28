@@ -60,12 +60,12 @@
     </select>
 
     <!--查询多条-->
-    <select id="queryByIds" resultMap="SystemRoleMenuMap">
+    <select id="queryByRoleIds" resultMap="SystemRoleMenuMap">
         SELECT
         <include refid="base_columns"/>
         FROM system_role_menu
-        WHERE id in
-        <foreach collection="ids" item="item" open="(" separator="," close=")">
+        WHERE deleted = 0 and role_id in
+        <foreach collection="roleIds" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
     </select>

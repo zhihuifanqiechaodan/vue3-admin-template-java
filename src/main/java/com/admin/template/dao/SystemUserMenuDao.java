@@ -18,7 +18,7 @@ public interface SystemUserMenuDao {
 
     SystemUserMenuDo queryById(@Param("id") Integer id);
 
-    List<SystemUserMenuDo> queryByIds(@Param("ids") List<Long> ids);
+    List<SystemUserMenuDo> queryByUserIds(@Param("userIds") List<Integer> userIds);
 
     List<SystemUserMenuDo> queryAllByLimit(SystemUserMenuSvcBean systemUserMenuSvcBean);
 

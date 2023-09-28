@@ -3,6 +3,8 @@ package com.admin.template.response;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class RoleListRespVo {
 
@@ -17,6 +19,9 @@ public class RoleListRespVo {
 
     @ApiModelProperty(value = "角色状态 0：正常 1：禁用")
     private Integer status;
+
+    @ApiModelProperty(value = "角色关联菜单ids")
+    private List<Integer> menuIds;
 
 }
 

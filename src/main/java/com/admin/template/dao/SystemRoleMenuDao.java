@@ -18,7 +18,7 @@ public interface SystemRoleMenuDao {
 
     List<SystemRoleMenuDo> queryByRoleId(@Param("roleId") Integer roleId);
 
-    List<SystemRoleMenuDo> queryByIds(@Param("ids") List<Long> ids);
+    List<SystemRoleMenuDo> queryByRoleIds(@Param("roleIds") List<Integer> roleIds);
 
     List<SystemRoleMenuDo> queryAllByLimit(SystemRoleMenuSvcBean systemRoleMenuSvcBean);
 

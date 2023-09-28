@@ -8,12 +8,14 @@ import com.admin.template.domain.SystemRoleMenuDo;
 import com.admin.template.request.AddRoleReqVo;
 import com.admin.template.request.UpdateRoleReqVo;
 import com.admin.template.response.RoleListRespVo;
+import com.admin.template.utils.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @className: SystemRoleServiceImpl
@@ -43,10 +45,16 @@ public class SystemRoleServiceImpl {
      */
     public List<RoleListRespVo> getRoleList(SystemRoleSvcBean reqVo) {
         List<SystemRoleDo> systemRoleDos = systemRoleDao.queryAllByLimit(reqVo);
+        List<Integer> roleIds = CollectionUtils.convertList(systemRoleDos, SystemRoleDo::getId);
+        List<SystemRoleMenuDo> roleMenuDos = systemRoleMenuDao.queryByRoleIds(roleIds);
+        Map<Integer, List<SystemRoleMenuDo>> roleMenuMap = CollectionUtils.convertMultiMap(roleMenuDos, SystemRoleMenuDo::getRoleId);
         List<RoleListRespVo> respVos = new ArrayList<>();
         for (SystemRoleDo systemRoleDo : systemRoleDos) {
             RoleListRespVo respVo = new RoleListRespVo();
             BeanUtil.copyProperties(systemRoleDo, respVo);
+            List<SystemRoleMenuDo> roleMenuDoList = roleMenuMap.get(respVo.getId());
+            List<Integer> menuIds = CollectionUtils.convertList(roleMenuDoList, SystemRoleMenuDo::getMenuId);
+            respVo.setMenuIds(menuIds);
             respVos.add(respVo);
         }
         return respVos;

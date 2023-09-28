@@ -137,15 +137,24 @@ public class SystemUserServiceImpl {
         roleSvcBean.setDeleted(0);
         List<SystemRoleDo> systemRoleDos = systemRoleDao.queryAllByLimit(roleSvcBean);
         List<Integer> roleIds = CollectionUtils.convertList(systemRoleDos, SystemRoleDo::getId);
-        Map<Integer, String> roleMap = CollectionUtils.convertMap(systemRoleDos, SystemRoleDo::getId, SystemRoleDo::getName);
-
+        Map<Integer, SystemRoleDo> roleMap = CollectionUtils.convertMap(systemRoleDos, SystemRoleDo::getId);
         svcBean.setRoleIds(roleIds);
+
+        List<Integer> userIds = CollectionUtils.convertList(systemRoleDos, SystemRoleDo::getId);
+        List<SystemUserMenuDo> systemUserMenuDos = systemUserMenuDao.queryByUserIds(userIds);
+        Map<Integer, List<SystemUserMenuDo>> userMenuMap = CollectionUtils.convertMultiMap(systemUserMenuDos, SystemUserMenuDo::getUserId);
+
         List<SystemUserDo> systemUserDos = systemUserDao.queryAllByLimit(svcBean);
         List<UserListRespVo> respVos = new ArrayList<>();
         for (SystemUserDo systemUserDo : systemUserDos) {
             UserListRespVo respVo = new UserListRespVo();
             BeanUtil.copyProperties(systemUserDo, respVo);
-            respVo.setRoleName(roleMap.get(systemUserDo.getRoleId()));
+            SystemRoleDo systemRoleDo = roleMap.get(systemUserDo.getRoleId());
+            respVo.setRoleName(systemRoleDo.getName());
+            respVo.setType(systemRoleDo.getType());
+            List<SystemUserMenuDo> roleMenuDoList = userMenuMap.get(respVo.getId());
+            List<Integer> menuIds = CollectionUtils.convertList(roleMenuDoList, SystemUserMenuDo::getMenuId);
+            respVo.setMenuIds(menuIds);
             respVos.add(respVo);
         }
         return respVos;
