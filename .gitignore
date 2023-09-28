@@ -9,5 +9,5 @@ target
 
 src/main/resources/application-local.yaml
 
-remark.txt
+remark
 
