@@ -56,7 +56,7 @@
         SELECT
         <include refid="base_columns"/>
         FROM system_role
-        WHERE id = #{id}
+        WHERE deleted = 0 and id = #{id}
     </select>
 
     <!--查询多条-->
@@ -64,7 +64,7 @@
         SELECT
         <include refid="base_columns"/>
         FROM system_role
-        WHERE id in
+        WHERE deleted = 0 and id in
         <foreach collection="ids" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>

@@ -118,7 +118,22 @@ public class SystemMenuServiceImpl {
             if (reqVo.getCache() == null || reqVo.getBreadcrumb() == null || reqVo.getAffix() == null || reqVo.getPath() == null) {
                 throw ServiceExceptionUtil.exception(ErrorCodeConstants.BAD_REQUEST);
             }
+
+            SystemMenuSvcBean svcBean = new SystemMenuSvcBean();
+            svcBean.setPath(reqVo.getPath());
+            List<SystemMenuDo> systemMenuDos = systemMenuDao.queryAllByLimit(svcBean);
+            if (systemMenuDos != null && systemMenuDos.size() > 0) {
+                throw ServiceExceptionUtil.exception(ErrorCodeConstants.PATH_EXIST_ERROR);
+            }
         }
+
+        SystemMenuSvcBean svcBean = new SystemMenuSvcBean();
+        svcBean.setTitle(reqVo.getTitle());
+        List<SystemMenuDo> systemMenuDos = systemMenuDao.queryAllByLimit(svcBean);
+        if (systemMenuDos != null && systemMenuDos.size() > 0) {
+            throw ServiceExceptionUtil.exception(ErrorCodeConstants.TITLE_EXIST_ERROR);
+        }
+
         SystemMenuDo systemMenuDo = new SystemMenuDo();
         BeanUtil.copyProperties(reqVo, systemMenuDo);
         systemMenuDo.setCreator(userId);

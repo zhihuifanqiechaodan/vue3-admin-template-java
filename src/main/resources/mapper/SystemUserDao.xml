@@ -74,7 +74,7 @@
         SELECT
         <include refid="base_columns"/>
         FROM system_user
-        WHERE id in
+        WHERE deleted = 0 and id in
         <foreach collection="ids" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>

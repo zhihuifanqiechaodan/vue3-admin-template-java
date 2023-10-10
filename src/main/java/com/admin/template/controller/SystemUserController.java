@@ -3,10 +3,7 @@ package com.admin.template.controller;
 import cn.hutool.core.bean.BeanUtil;
 import com.admin.template.bean.SystemUserSvcBean;
 import com.admin.template.dao.SystemUserDao;
-import com.admin.template.request.AddUserReqVo;
-import com.admin.template.request.UpdateUserMenuReqVo;
-import com.admin.template.request.UpdateUserReqVo;
-import com.admin.template.request.UserListReqVo;
+import com.admin.template.request.*;
 import com.admin.template.response.UserListRespVo;
 import com.admin.template.service.SystemUserServiceImpl;
 import com.admin.template.utils.CommonResult;
@@ -89,6 +86,18 @@ public class SystemUserController {
     @PostMapping("update_user_menu")
     public CommonResult<Integer> updateUserMenu(@RequestHeader("userId") int userId, @RequestBody @Valid UpdateUserMenuReqVo reqVo) {
         return CommonResult.success(systemUserService.updateUserMenu(userId, reqVo));
+    }
+
+    /**
+     * 编辑用户密码
+     *
+     * @param reqVo
+     * @return
+     */
+    @ApiOperation("编辑用户密码")
+    @PostMapping("update_user_password")
+    public CommonResult<Integer> updateUserPassword(@RequestHeader("userId") int userId, @RequestBody @Valid UpdatePasswoedReqVo reqVo) {
+        return CommonResult.success(systemUserService.updateUserPassword(userId, reqVo));
     }
 
 }

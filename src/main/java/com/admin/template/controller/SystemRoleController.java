@@ -46,8 +46,10 @@ public class SystemRoleController {
         SystemRoleSvcBean svcBean = new SystemRoleSvcBean();
         svcBean.setName(reqVo.getName());
         svcBean.setDeleted(0);
-        svcBean.setPageSize(reqVo.getPageSize());
-        svcBean.setOffset(reqVo.getOffset());
+        if (reqVo.getPageNo() != null && reqVo.getPageSize() != null) {
+            svcBean.setPageSize(reqVo.getPageSize());
+            svcBean.setOffset((reqVo.getPageNo() - 1) * reqVo.getPageSize());
+        }
         Long count = systemRoleDao.count(svcBean);
         if (count == 0) {
             return CommonResult.success(new PageResult<>(Collections.emptyList(), 0L));

@@ -20,5 +20,9 @@ public class AddUserReqVo {
     @NotNull(message = "角色不能为空")
     private Integer roleId;
 
+    @ApiModelProperty(value = "角色状态 0：正常 1：禁用")
+    @NotNull(message = "角色状态不能为空")
+    private Integer status;
+
 }
 
