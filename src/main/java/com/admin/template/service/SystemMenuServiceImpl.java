@@ -140,7 +140,8 @@ public class SystemMenuServiceImpl {
         systemMenuDo.setUpdater(userId);
         systemMenuDo.setCataloguePath(IdUtil.fastSimpleUUID());
         systemMenuDao.insertSelective(systemMenuDo);
-        for (ButtonPermissions buttonPermissions : reqVo.getButtonPermissions()) {
+        List<ButtonPermissions> buttonPermissionsList = reqVo.getButtonPermissions() == null ? Collections.EMPTY_LIST : reqVo.getButtonPermissions();
+        for (ButtonPermissions buttonPermissions : buttonPermissionsList) {
             SystemMenuDo menuDo = new SystemMenuDo();
             menuDo.setParentId(systemMenuDo.getId());
             menuDo.setButtonId(buttonPermissions.getValue());
@@ -148,7 +149,7 @@ public class SystemMenuServiceImpl {
             menuDo.setTitle(buttonPermissions.getLabel());
             menuDo.setCreator(userId);
             menuDo.setUpdater(userId);
-            systemMenuDao.insertSelective(systemMenuDo);
+            systemMenuDao.insertSelective(menuDo);
         }
         return 1;
     }
@@ -191,19 +192,18 @@ public class SystemMenuServiceImpl {
      * 菜单排序
      *
      * @param userId
-     * @param reqVo
+     * @param menuSortReqVoList
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer menuSort(int userId, MenuSortReqVo reqVo) {
-        int sort = 0;
-        for (Integer menuId : reqVo.getMenuIds()) {
+    public Integer menuSort(int userId, List<MenuSortReqVo> menuSortReqVoList) {
+        for (MenuSortReqVo item : menuSortReqVoList) {
             SystemMenuDo systemMenuDo = new SystemMenuDo();
-            systemMenuDo.setId(menuId);
-            systemMenuDo.setSort(sort);
+            systemMenuDo.setId(item.getMenuId());
+            systemMenuDo.setParentId(item.getParentId() == null ? 0 : item.getParentId());
+            systemMenuDo.setSort(item.getSort());
             systemMenuDo.setUpdater(userId);
             systemMenuDao.updateSelective(systemMenuDo);
-            sort++;
         }
         return 1;
     }

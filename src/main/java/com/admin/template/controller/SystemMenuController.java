@@ -82,7 +82,7 @@ public class SystemMenuController {
      */
     @ApiOperation("菜单排序")
     @PostMapping("menu_sort")
-    public CommonResult<Integer> menuSort(@RequestHeader("userId") int userId, @RequestBody @Valid MenuSortReqVo reqVo) {
+    public CommonResult<Integer> menuSort(@RequestHeader("userId") int userId, @RequestBody @Valid List<MenuSortReqVo> reqVo) {
         return CommonResult.success(systemMenuService.menuSort(userId, reqVo));
     }
 }
