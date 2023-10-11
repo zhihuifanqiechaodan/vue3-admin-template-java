@@ -16,6 +16,7 @@ import com.admin.template.request.UpdateUserMenuReqVo;
 import com.admin.template.request.UpdateUserReqVo;
 import com.admin.template.response.UserListRespVo;
 import com.admin.template.utils.CollectionUtils;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +44,8 @@ public class SystemUserServiceImpl {
     private SystemUserMenuDao systemUserMenuDao;
     @Resource
     private SystemRoleMenuDao systemRoleMenuDao;
+    @Resource
+    private PasswordEncoder passwordEncoder;
 
     /**
      * 新增用户
@@ -177,7 +180,7 @@ public class SystemUserServiceImpl {
     public Integer updateUserPassword(int userId, UpdatePasswoedReqVo reqVo) {
         SystemUserDo systemUserDo = new SystemUserDo();
         systemUserDo.setId(reqVo.getUserId());
-        systemUserDo.setPassword(reqVo.getPassword());
+        systemUserDo.setPassword(passwordEncoder.encode(reqVo.getPassword()));
         systemUserDo.setUpdater(userId);
         return systemUserDao.updateSelective(systemUserDo);
     }

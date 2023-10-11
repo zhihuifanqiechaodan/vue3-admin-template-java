@@ -13,7 +13,7 @@ public class UpdatePasswoedReqVo {
     @NotNull(message = "用户Id不能为空")
     private Integer userId;
 
-    @ApiModelProperty(value = "用户密码")
+    @ApiModelProperty(value = "用户新的密码")
     @NotBlank(message = "用户密码不能为空")
     private String password;
 
