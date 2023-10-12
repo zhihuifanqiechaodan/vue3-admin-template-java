@@ -9,6 +9,12 @@ spring:
     username: admin
     password: 123456
 
+  jackson:
+    # 格式化全局时间字段 年-月-天 时：分：秒
+    date-format: yyyy-MM-dd HH:mm:ss
+    # 指定时间区域类型 东8区时区 既北京时间
+    time-zone: GMT+8
+
 mybatis:
   mapper-locations: classpath:mapper/*.xml
   configuration:

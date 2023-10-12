@@ -1,6 +1,5 @@
 package com.admin.template.service;
 
-import cn.hutool.core.util.IdUtil;
 import com.admin.template.bean.SystemRoleSvcBean;
 import com.admin.template.bean.SystemUserSvcBean;
 import com.admin.template.dao.SystemMenuDao;
@@ -14,7 +13,7 @@ import com.admin.template.exception.ErrorCodeConstants;
 import com.admin.template.exception.ServiceExceptionUtil;
 import com.admin.template.request.LoginReqVo;
 import com.admin.template.response.LoginRespVo;
-import com.admin.template.utils.PasswordUtils;
+import com.admin.template.utils.JWTUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,8 +81,7 @@ public class SystemServiceImpl {
         SystemUserDo systemUserDo = systemUserDos.get(0);
         if (systemUserDos != null && systemUserDos.size() > 0) {
             //解析密码
-            String password = PasswordUtils.desEncrypt(reqVo.getPassword());
-            if (!systemUserDo.getPassword().equals(password)) {
+            if (!passwordEncoder.matches(reqVo.getPassword(), systemUserDo.getPassword())) {
                 throw ServiceExceptionUtil.exception(ErrorCodeConstants.PASSWORD_ERROR);
             }
         }
@@ -91,8 +89,7 @@ public class SystemServiceImpl {
         LoginRespVo respVo = new LoginRespVo();
         respVo.setId(systemUserDo.getId());
         respVo.setUsername(systemUserDo.getUsername());
-        //todo 从redis中获取token,没有创建token
-        respVo.setToken(IdUtil.fastSimpleUUID());
+        respVo.setToken(JWTUtils.generateToken(systemUserDo));
         return respVo;
     }
 
@@ -119,9 +116,7 @@ public class SystemServiceImpl {
         LoginRespVo respVo = new LoginRespVo();
         respVo.setId(systemUserDo.getId());
         respVo.setUsername(systemUserDo.getUsername());
-        //todo 创建token,存入redis
-        respVo.setToken(IdUtil.fastSimpleUUID());
+        respVo.setToken(JWTUtils.generateToken(systemUserDo));
         return respVo;
     }
-
 }

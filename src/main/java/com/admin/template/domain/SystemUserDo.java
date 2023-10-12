@@ -13,6 +13,9 @@ import java.util.Date;
 @Data
 public class SystemUserDo {
 
+    /**
+     * 用户Id
+     */
     private Integer id;
     /**
      * 用户名称
