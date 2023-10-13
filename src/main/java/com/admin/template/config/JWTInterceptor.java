@@ -26,7 +26,8 @@ public class JWTInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String requestURI = request.getRequestURI();
         // 排除Swagger地址
-        if (requestURI.startsWith("/doc.html") || requestURI.startsWith("/swagger") || requestURI.startsWith("/v2")) {
+        if (requestURI.startsWith("/doc.html") || requestURI.startsWith("/swagger")
+                || requestURI.startsWith("/v2") || requestURI.startsWith("/webjars")) {
             return true;
         }
 

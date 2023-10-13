@@ -40,7 +40,7 @@ public class JWTUtils {
                 .withIssuedAt(new Date())
                 .withIssuer(issuer)
                 .withAudience(audience)
-                .withExpiresAt(new Date(System.currentTimeMillis() + 100000))
+                .withExpiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
                 .sign(Algorithm.HMAC256(secret));
     }
 
