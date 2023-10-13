@@ -18,6 +18,7 @@ import com.admin.template.exception.ErrorCodeConstants;
 import com.admin.template.exception.ServiceExceptionUtil;
 import com.admin.template.request.AddMenuReqVo;
 import com.admin.template.request.ButtonPermissions;
+import com.admin.template.request.MenuReqVo;
 import com.admin.template.request.MenuSortReqVo;
 import com.admin.template.utils.CollectionUtils;
 import com.admin.template.utils.ThreadLocalUtil;
@@ -199,11 +200,12 @@ public class SystemMenuServiceImpl {
     /**
      * 菜单排序
      *
-     * @param menuSortReqVoList
+     * @param reqVo
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer menuSort(List<MenuSortReqVo> menuSortReqVoList) {
+    public Integer menuSort(MenuReqVo reqVo) {
+        List<MenuSortReqVo> menuSortReqVoList = reqVo.getSortList();
         Integer userId = ThreadLocalUtil.getUserId("userId");
         for (MenuSortReqVo item : menuSortReqVoList) {
             SystemMenuDo systemMenuDo = new SystemMenuDo();

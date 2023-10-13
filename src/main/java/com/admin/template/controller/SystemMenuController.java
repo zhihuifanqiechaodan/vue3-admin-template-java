@@ -1,6 +1,7 @@
 package com.admin.template.controller;
 
 import com.admin.template.request.AddMenuReqVo;
+import com.admin.template.request.MenuReqVo;
 import com.admin.template.request.MenuSortReqVo;
 import com.admin.template.service.SystemMenuServiceImpl;
 import com.admin.template.utils.CommonResult;
@@ -56,7 +57,7 @@ public class SystemMenuController {
 
     @ApiOperation("菜单排序")
     @PostMapping("menu_sort")
-    public CommonResult<Integer> menuSort(@RequestBody @Valid List<MenuSortReqVo> reqVo) {
+    public CommonResult<Integer> menuSort(@RequestBody @Valid MenuReqVo reqVo) {
         return CommonResult.success(systemMenuService.menuSort(reqVo));
     }
 }
