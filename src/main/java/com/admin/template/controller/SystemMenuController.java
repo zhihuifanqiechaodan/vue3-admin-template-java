@@ -2,7 +2,6 @@ package com.admin.template.controller;
 
 import com.admin.template.request.AddMenuReqVo;
 import com.admin.template.request.MenuReqVo;
-import com.admin.template.request.MenuSortReqVo;
 import com.admin.template.service.SystemMenuServiceImpl;
 import com.admin.template.utils.CommonResult;
 import com.admin.template.vo.SystemMenuSvcVo;

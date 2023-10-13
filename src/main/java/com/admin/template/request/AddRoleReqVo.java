@@ -3,6 +3,7 @@ package com.admin.template.request;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.List;
 public class AddRoleReqVo {
 
     @ApiModelProperty(value = "角色名称")
-    @NotNull(message = "角色名称不能为空")
+    @NotBlank(message = "角色名称不能为空")
     private String name;
 
     @ApiModelProperty(value = "菜单ids")
