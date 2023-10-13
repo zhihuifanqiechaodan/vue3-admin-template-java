@@ -36,6 +36,13 @@ public class JWTInterceptor implements HandlerInterceptor {
         Map<String, Object> map = new HashMap<>();
         // 从请求头中获取令牌
         String token = request.getHeader("Authorization");
+        //postman测试免token验证，默认用户为超级管理员
+        if (token.equals("888888")) {
+            Map<String, String> context = new HashMap<>();
+            context.put("userId", "1");
+            ThreadLocalUtil.setContext(context);
+            return true;
+        }
         try {
             DecodedJWT decode = JWT.decode(token);
             String userId = decode.getKeyId();
