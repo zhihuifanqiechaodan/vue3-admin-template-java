@@ -7,7 +7,10 @@ import com.admin.template.utils.CommonResult;
 import com.admin.template.vo.SystemMenuSvcVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -27,62 +30,33 @@ public class SystemMenuController {
     @Resource
     private SystemMenuServiceImpl systemMenuService;
 
-    /**
-     * 获取导航栏菜单列表
-     *
-     * @param userId
-     * @return
-     */
     @ApiOperation("获取导航栏菜单列表")
     @PostMapping("get_menu_list")
-    public CommonResult<List<SystemMenuSvcVo>> getMenuList(@RequestHeader("userId") int userId) {
-        return CommonResult.success(systemMenuService.getMenuList(userId));
+    public CommonResult<List<SystemMenuSvcVo>> getMenuList() {
+        return CommonResult.success(systemMenuService.getMenuList());
     }
 
-    /**
-     * 获取菜单列表
-     *
-     * @return
-     */
     @ApiOperation("获取菜单列表")
     @PostMapping("get_all_menu_list")
     public CommonResult<List<SystemMenuSvcVo>> getAllMenuList() {
         return CommonResult.success(systemMenuService.getAllMenuList());
     }
 
-    /**
-     * 新建菜单
-     *
-     * @param userId
-     * @return
-     */
     @ApiOperation("新建菜单")
     @PostMapping("add_menu")
-    public CommonResult<Integer> addMenu(@RequestHeader("userId") int userId, @RequestBody @Valid AddMenuReqVo reqVo) {
-        return CommonResult.success(systemMenuService.addMenu(userId, reqVo));
+    public CommonResult<Integer> addMenu(@RequestBody @Valid AddMenuReqVo reqVo) {
+        return CommonResult.success(systemMenuService.addMenu(reqVo));
     }
 
-    /**
-     * 编辑菜单
-     *
-     * @param userId
-     * @return
-     */
     @ApiOperation("编辑菜单")
     @PostMapping("update_menu")
-    public CommonResult<Integer> updateMenu(@RequestHeader("userId") int userId, @RequestBody @Valid AddMenuReqVo reqVo) {
-        return CommonResult.success(systemMenuService.updateMenu(userId, reqVo));
+    public CommonResult<Integer> updateMenu(@RequestBody @Valid AddMenuReqVo reqVo) {
+        return CommonResult.success(systemMenuService.updateMenu(reqVo));
     }
 
-    /**
-     * 菜单排序
-     *
-     * @param userId
-     * @return
-     */
     @ApiOperation("菜单排序")
     @PostMapping("menu_sort")
-    public CommonResult<Integer> menuSort(@RequestHeader("userId") int userId, @RequestBody @Valid List<MenuSortReqVo> reqVo) {
-        return CommonResult.success(systemMenuService.menuSort(userId, reqVo));
+    public CommonResult<Integer> menuSort(@RequestBody @Valid List<MenuSortReqVo> reqVo) {
+        return CommonResult.success(systemMenuService.menuSort(reqVo));
     }
 }

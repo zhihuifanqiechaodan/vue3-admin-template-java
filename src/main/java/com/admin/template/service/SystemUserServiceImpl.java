@@ -16,6 +16,7 @@ import com.admin.template.request.UpdateUserMenuReqVo;
 import com.admin.template.request.UpdateUserReqVo;
 import com.admin.template.response.UserListRespVo;
 import com.admin.template.utils.CollectionUtils;
+import com.admin.template.utils.ThreadLocalUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,11 +51,11 @@ public class SystemUserServiceImpl {
     /**
      * 新增用户
      *
-     * @param reqVo
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer addUser(int userId, AddUserReqVo reqVo) {
+    public Integer addUser(AddUserReqVo reqVo) {
+        Integer userId = ThreadLocalUtil.getUserId("userId");
         List<SystemRoleMenuDo> systemRoleMenuDos = systemRoleMenuDao.queryByRoleId(reqVo.getRoleId());
         if (systemRoleMenuDos == null || systemRoleMenuDos.size() == 0) {
             throw ServiceExceptionUtil.exception(ErrorCodeConstants.NO_ROLE_MENU_ERROR);
@@ -81,12 +82,12 @@ public class SystemUserServiceImpl {
     /**
      * 编辑用户
      *
-     * @param userId
      * @param reqVo
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer updateUser(int userId, UpdateUserReqVo reqVo) {
+    public Integer updateUser(UpdateUserReqVo reqVo) {
+        Integer userId = ThreadLocalUtil.getUserId("userId");
         SystemUserDo userDo = systemUserDao.queryById(reqVo.getUserId());
         SystemUserDo systemUserDo = new SystemUserDo();
         BeanUtil.copyProperties(reqVo, systemUserDo);
@@ -115,12 +116,12 @@ public class SystemUserServiceImpl {
     /**
      * 编辑用户菜单权限
      *
-     * @param userId
      * @param reqVo
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer updateUserMenu(int userId, UpdateUserMenuReqVo reqVo) {
+    public Integer updateUserMenu(UpdateUserMenuReqVo reqVo) {
+        Integer userId = ThreadLocalUtil.getUserId("userId");
         //删除用户原来的菜单权限
         systemUserMenuDao.deleteByUserId(userId);
         //新增用户菜单权限
@@ -173,11 +174,11 @@ public class SystemUserServiceImpl {
     /**
      * 编辑用户密码
      *
-     * @param userId
      * @param reqVo
      * @return
      */
-    public Integer updateUserPassword(int userId, UpdatePasswoedReqVo reqVo) {
+    public Integer updateUserPassword(UpdatePasswoedReqVo reqVo) {
+        Integer userId = ThreadLocalUtil.getUserId("userId");
         SystemUserDo systemUserDo = new SystemUserDo();
         systemUserDo.setId(reqVo.getUserId());
         systemUserDo.setPassword(passwordEncoder.encode(reqVo.getPassword()));

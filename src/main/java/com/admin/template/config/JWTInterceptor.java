@@ -1,6 +1,7 @@
 package com.admin.template.config;
 
 import com.admin.template.utils.JWTUtils;
+import com.admin.template.utils.ThreadLocalUtil;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.AlgorithmMismatchException;
@@ -37,6 +38,10 @@ public class JWTInterceptor implements HandlerInterceptor {
         String token = request.getHeader("Authorization");
         try {
             DecodedJWT decode = JWT.decode(token);
+            String userId = decode.getKeyId();
+            Map<String, String> context = new HashMap<>();
+            context.put("userId", userId);
+            ThreadLocalUtil.setContext(context);
             // 验证令牌的有效性
             JWT.require(Algorithm.HMAC256(JWTUtils.getSecret())).build().verify(token);
             // 放行请求
@@ -64,6 +69,12 @@ public class JWTInterceptor implements HandlerInterceptor {
         response.getWriter().println(json);
         // 不放行请求
         return false;
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        //防止内存泄漏
+        ThreadLocalUtil.clear();
     }
 }
 

@@ -2,9 +2,12 @@ package com.admin.template.utils;
 
 import cn.hutool.core.util.IdUtil;
 import com.admin.template.domain.SystemUserDo;
+import com.admin.template.exception.ErrorCodeConstants;
+import com.admin.template.exception.ServiceExceptionUtil;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
 
@@ -51,6 +54,9 @@ public class JWTUtils {
      * @return
      */
     public static DecodedJWT validateToken(String token) {
+        if (StringUtils.isEmpty(token)) {
+            throw ServiceExceptionUtil.exception(ErrorCodeConstants.BAD_REQUEST);
+        }
         return JWT.decode(token);
     }
 

@@ -1,6 +1,5 @@
 package com.admin.template.request;
 
-import com.admin.template.utils.PageParam;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -11,10 +10,10 @@ public class RoleListReqVo {
     private String name;
 
     @ApiModelProperty(value = "页码，从 1 开始")
-    private Integer pageNo ;
+    private Integer pageNo;
 
     @ApiModelProperty(value = "每页条数，最大值为 100")
-    private Integer pageSize ;
+    private Integer pageSize;
 
 }
 

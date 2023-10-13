@@ -20,6 +20,7 @@ import com.admin.template.request.AddMenuReqVo;
 import com.admin.template.request.ButtonPermissions;
 import com.admin.template.request.MenuSortReqVo;
 import com.admin.template.utils.CollectionUtils;
+import com.admin.template.utils.ThreadLocalUtil;
 import com.admin.template.vo.SystemMenuSvcVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,10 +51,10 @@ public class SystemMenuServiceImpl {
     /**
      * 获取导航栏菜单列表
      *
-     * @param userId
      * @return
      */
-    public List<SystemMenuSvcVo> getMenuList(int userId) {
+    public List<SystemMenuSvcVo> getMenuList() {
+        Integer userId = ThreadLocalUtil.getUserId("userId");
         SystemUserDo systemUserDo = systemUserDao.queryById(userId);
         SystemRoleDo systemRoleDo = systemRoleDao.queryById(systemUserDo.getRoleId());
         //超级管理员
@@ -103,12 +104,11 @@ public class SystemMenuServiceImpl {
     /**
      * 新建菜单
      *
-     * @param userId
      * @param reqVo
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer addMenu(int userId, AddMenuReqVo reqVo) {
+    public Integer addMenu(AddMenuReqVo reqVo) {
         if (reqVo.getType().equals(MenuTypeEnum.CATALOGUE.getType())) {
             if (reqVo.getShow() == null || reqVo.getLayout() == null) {
                 throw ServiceExceptionUtil.exception(ErrorCodeConstants.BAD_REQUEST);
@@ -134,6 +134,7 @@ public class SystemMenuServiceImpl {
             throw ServiceExceptionUtil.exception(ErrorCodeConstants.TITLE_EXIST_ERROR);
         }
 
+        Integer userId = ThreadLocalUtil.getUserId("userId");
         SystemMenuDo systemMenuDo = new SystemMenuDo();
         BeanUtil.copyProperties(reqVo, systemMenuDo);
         systemMenuDo.setCreator(userId);
@@ -154,7 +155,13 @@ public class SystemMenuServiceImpl {
         return 1;
     }
 
-    public Integer updateMenu(int userId, AddMenuReqVo reqVo) {
+    /**
+     * 编辑菜单
+     *
+     * @param reqVo
+     * @return
+     */
+    public Integer updateMenu(AddMenuReqVo reqVo) {
         if (reqVo.getId() == null) {
             throw ServiceExceptionUtil.exception(ErrorCodeConstants.BAD_REQUEST, "Id不能为空");
         }
@@ -168,6 +175,7 @@ public class SystemMenuServiceImpl {
                 throw ServiceExceptionUtil.exception(ErrorCodeConstants.BAD_REQUEST);
             }
         }
+        Integer userId = ThreadLocalUtil.getUserId("userId");
         //更新菜单、目录
         SystemMenuDo systemMenuDo = new SystemMenuDo();
         BeanUtil.copyProperties(reqVo, systemMenuDo);
@@ -191,12 +199,12 @@ public class SystemMenuServiceImpl {
     /**
      * 菜单排序
      *
-     * @param userId
      * @param menuSortReqVoList
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer menuSort(int userId, List<MenuSortReqVo> menuSortReqVoList) {
+    public Integer menuSort(List<MenuSortReqVo> menuSortReqVoList) {
+        Integer userId = ThreadLocalUtil.getUserId("userId");
         for (MenuSortReqVo item : menuSortReqVoList) {
             SystemMenuDo systemMenuDo = new SystemMenuDo();
             systemMenuDo.setId(item.getMenuId());

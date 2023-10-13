@@ -89,6 +89,7 @@ public class SystemServiceImpl {
         LoginRespVo respVo = new LoginRespVo();
         respVo.setId(systemUserDo.getId());
         respVo.setUsername(systemUserDo.getUsername());
+        systemUserDo.setPassword(reqVo.getPassword());
         respVo.setToken(JWTUtils.generateToken(systemUserDo));
         return respVo;
     }
@@ -116,6 +117,7 @@ public class SystemServiceImpl {
         LoginRespVo respVo = new LoginRespVo();
         respVo.setId(systemUserDo.getId());
         respVo.setUsername(systemUserDo.getUsername());
+        systemUserDo.setPassword(reqVo.getPassword());
         respVo.setToken(JWTUtils.generateToken(systemUserDo));
         return respVo;
     }

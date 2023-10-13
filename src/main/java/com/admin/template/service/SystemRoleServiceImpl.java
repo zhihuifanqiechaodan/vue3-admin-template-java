@@ -9,6 +9,7 @@ import com.admin.template.request.AddRoleReqVo;
 import com.admin.template.request.UpdateRoleReqVo;
 import com.admin.template.response.RoleListRespVo;
 import com.admin.template.utils.CollectionUtils;
+import com.admin.template.utils.ThreadLocalUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,7 +68,8 @@ public class SystemRoleServiceImpl {
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer addRole(int userId, AddRoleReqVo reqVo) {
+    public Integer addRole(AddRoleReqVo reqVo) {
+        Integer userId = ThreadLocalUtil.getUserId("userId");
         //新增角色信息
         SystemRoleDo systemRoleDo = new SystemRoleDo();
         systemRoleDo.setName(reqVo.getName());
@@ -90,12 +92,12 @@ public class SystemRoleServiceImpl {
     /**
      * 编辑角色
      *
-     * @param userId
      * @param reqVo
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer updateRole(int userId, UpdateRoleReqVo reqVo) {
+    public Integer updateRole(UpdateRoleReqVo reqVo) {
+        Integer userId = ThreadLocalUtil.getUserId("userId");
         //编辑角色信息
         SystemRoleDo systemRoleDo = new SystemRoleDo();
         systemRoleDo.setId(reqVo.getRoleId());

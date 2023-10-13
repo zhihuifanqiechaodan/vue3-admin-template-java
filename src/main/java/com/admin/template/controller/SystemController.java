@@ -1,7 +1,9 @@
 package com.admin.template.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.admin.template.domain.SystemUserDo;
 import com.admin.template.request.LoginReqVo;
+import com.admin.template.request.UserTokenReqVo;
 import com.admin.template.response.LoginRespVo;
 import com.admin.template.service.SystemServiceImpl;
 import com.admin.template.utils.CommonResult;
@@ -28,12 +30,6 @@ public class SystemController {
     @Resource
     private SystemServiceImpl systemService;
 
-    /**
-     * 登录
-     *
-     * @param reqVo
-     * @return
-     */
     @ApiOperation("登录")
     @PostMapping("login")
     public CommonResult<LoginRespVo> login(@RequestBody @Valid LoginReqVo reqVo) {
@@ -42,13 +38,11 @@ public class SystemController {
 
     @ApiOperation("获取token")
     @PostMapping("get_token")
-    public CommonResult<String> getToken() {
+    public CommonResult<String> getToken(@RequestBody @Valid UserTokenReqVo reqVo) {
         SystemUserDo systemUserDo = new SystemUserDo();
-        systemUserDo.setId(1);
-        systemUserDo.setUsername("admin");
-        systemUserDo.setPassword("123456");
+        BeanUtil.copyProperties(reqVo, systemUserDo);
         String token = JWTUtils.generateToken(systemUserDo);
-        return CommonResult.success(token + "-----" + JWTUtils.getSecret());
+        return CommonResult.success(token);
     }
 
     @ApiOperation("解析token")
