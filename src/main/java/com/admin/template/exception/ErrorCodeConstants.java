@@ -28,4 +28,5 @@ public interface ErrorCodeConstants {
     // ========== 菜单模块 1003000000 ==========
     ErrorCode TITLE_EXIST_ERROR = new ErrorCode(1003000000, "title名称重复");
     ErrorCode PATH_EXIST_ERROR = new ErrorCode(1003000001, "path名称重复");
+    ErrorCode BUTTON_TITLE_EXIST_ERROR = new ErrorCode(1003000002, "按钮名称重复");
 }

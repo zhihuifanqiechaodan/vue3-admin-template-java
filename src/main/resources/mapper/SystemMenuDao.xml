@@ -291,5 +291,12 @@
         WHERE `parent_id` = #{parentId}
     </delete>
 
+    <update id="updateButtonTitle">
+        UPDATE system_menu
+        set `title` = #{title}
+        WHERE id = #{id}
+          and `parent_id` = #{parentId}
+          and `button_id` = #{buttonId}
+    </update>
 </mapper>
 

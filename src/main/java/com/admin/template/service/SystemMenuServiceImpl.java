@@ -30,6 +30,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @className: SystemServiceImpl
@@ -162,6 +163,7 @@ public class SystemMenuServiceImpl {
      * @param reqVo
      * @return
      */
+    @Transactional(rollbackFor = Exception.class)
     public Integer updateMenu(AddMenuReqVo reqVo) {
         if (reqVo.getId() == null) {
             throw ServiceExceptionUtil.exception(ErrorCodeConstants.BAD_REQUEST, "Id不能为空");
@@ -182,17 +184,37 @@ public class SystemMenuServiceImpl {
         BeanUtil.copyProperties(reqVo, systemMenuDo);
         systemMenuDo.setUpdater(userId);
         systemMenuDao.updateSelective(systemMenuDo);
-        //删除菜单目录关联下的button
-        systemMenuDao.deleteByParentId(reqVo.getId());
-        for (ButtonPermissions buttonPermissions : reqVo.getButtonPermissions()) {
-            SystemMenuDo menuDo = new SystemMenuDo();
-            menuDo.setParentId(reqVo.getId());
-            menuDo.setButtonId(buttonPermissions.getValue());
-            menuDo.setType(MenuTypeEnum.BUTTON.getType());
-            menuDo.setTitle(buttonPermissions.getLabel());
-            menuDo.setCreator(userId);
-            menuDo.setUpdater(userId);
-            systemMenuDao.insertSelective(systemMenuDo);
+
+        if (reqVo.getType().equals(MenuTypeEnum.MENU.getType())) {
+            SystemMenuSvcBean svcBean = new SystemMenuSvcBean();
+            svcBean.setParentId(reqVo.getId());
+            svcBean.setDeleted(0);
+            List<SystemMenuDo> systemMenuDos = systemMenuDao.queryAllByLimit(svcBean);
+
+            List<ButtonPermissions> buttonPermissions = reqVo.getButtonPermissions() == null ? Collections.emptyList() : reqVo.getButtonPermissions();
+            Set<String> labelList = CollectionUtils.convertSet(buttonPermissions, ButtonPermissions::getLabel);
+            if (buttonPermissions.size() != labelList.size()) {
+                throw ServiceExceptionUtil.exception(ErrorCodeConstants.BUTTON_TITLE_EXIST_ERROR);
+            }
+            int index = 0;
+            for (ButtonPermissions buttonPermission : buttonPermissions) {
+                if (buttonPermission.getValue() <= systemMenuDos.size()) {
+                    //更新
+                    SystemMenuDo menuDo = systemMenuDos.get(index);
+                    menuDo.setTitle(new ArrayList<>(labelList).get(index));
+                    systemMenuDao.updateButtonTitle(menuDo);
+                } else {
+                    SystemMenuDo menuDo = new SystemMenuDo();
+                    menuDo.setParentId(reqVo.getId());
+                    menuDo.setButtonId(buttonPermission.getValue());
+                    menuDo.setType(MenuTypeEnum.BUTTON.getType());
+                    menuDo.setTitle(buttonPermission.getLabel());
+                    menuDo.setCreator(userId);
+                    menuDo.setUpdater(userId);
+                    systemMenuDao.insertSelective(systemMenuDo);
+                }
+                index++;
+            }
         }
         return 1;
     }

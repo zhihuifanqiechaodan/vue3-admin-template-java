@@ -30,5 +30,7 @@ public interface SystemMenuDao {
 
     int deleteByParentId(@Param("parentId") Integer parentId);
 
+    int updateButtonTitle(SystemMenuDo systemMenuDo);
+
 }
 
