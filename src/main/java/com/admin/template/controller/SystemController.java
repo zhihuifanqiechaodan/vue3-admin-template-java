@@ -51,10 +51,4 @@ public class SystemController {
         return CommonResult.success(JWTUtils.validateToken(token));
     }
 
-    @ApiOperation("test打包结果")
-    @PostMapping("test")
-    public CommonResult<String> test() {
-        return CommonResult.success("success");
-    }
-
 }
