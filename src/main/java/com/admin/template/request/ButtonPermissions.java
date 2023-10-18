@@ -12,9 +12,6 @@ import lombok.Data;
 @Data
 public class ButtonPermissions {
 
-    @ApiModelProperty(value = "唯一Id")
-    private Integer Id;
-
     @ApiModelProperty(value = "按钮Id")
     private Integer value;
 
