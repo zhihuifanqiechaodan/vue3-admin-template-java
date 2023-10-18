@@ -36,7 +36,7 @@ public class SystemController {
         return CommonResult.success(systemService.login(reqVo));
     }
 
-    @ApiOperation("获取token")
+    @ApiOperation("获取Token")
     @PostMapping("get_token")
     public CommonResult<String> getToken(@RequestBody @Valid UserTokenReqVo reqVo) {
         SystemUserDo systemUserDo = new SystemUserDo();
@@ -45,7 +45,7 @@ public class SystemController {
         return CommonResult.success(token);
     }
 
-    @ApiOperation("解析token")
+    @ApiOperation("解析Token")
     @GetMapping("validate_token")
     public CommonResult<DecodedJWT> validateToken(@RequestParam("token") String token) {
         return CommonResult.success(JWTUtils.validateToken(token));
