@@ -29,4 +29,5 @@ public interface ErrorCodeConstants {
     ErrorCode TITLE_EXIST_ERROR = new ErrorCode(1003000000, "title名称重复");
     ErrorCode PATH_EXIST_ERROR = new ErrorCode(1003000001, "path名称重复");
     ErrorCode BUTTON_TITLE_EXIST_ERROR = new ErrorCode(1003000002, "按钮名称重复");
+    ErrorCode BUTTON_ID_EXIST_ERROR = new ErrorCode(1003000003, "按钮名称重复");
 }

@@ -8,7 +8,7 @@
     <artifactId>admin_template</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-
+    <!--jdk版本-->
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
@@ -93,6 +93,7 @@
 <!--        </dependency>-->
     </dependencies>
 
+    <!--打jar包-->
     <build>
         <plugins>
             <plugin>

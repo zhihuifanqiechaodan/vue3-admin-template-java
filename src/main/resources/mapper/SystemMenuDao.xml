@@ -285,18 +285,10 @@
     </update>
 
     <!--通过主键删除-->
-    <delete id="deleteByParentId">
+    <delete id="deleteById">
         UPDATE system_menu
         SET deleted = 1
-        WHERE `parent_id` = #{parentId}
-    </delete>
-
-    <update id="updateButtonTitle">
-        UPDATE system_menu
-        set `title` = #{title}
         WHERE id = #{id}
-          and `parent_id` = #{parentId}
-          and `button_id` = #{buttonId}
-    </update>
+    </delete>
 </mapper>
 

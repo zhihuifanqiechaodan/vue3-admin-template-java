@@ -1,6 +1,7 @@
 package com.admin.template.service;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.IdUtil;
 import com.admin.template.bean.SystemMenuSvcBean;
 import com.admin.template.bean.SystemUserMenuSvcBean;
@@ -27,10 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @className: SystemServiceImpl
@@ -189,31 +187,48 @@ public class SystemMenuServiceImpl {
             SystemMenuSvcBean svcBean = new SystemMenuSvcBean();
             svcBean.setParentId(reqVo.getId());
             svcBean.setDeleted(0);
-            List<SystemMenuDo> systemMenuDos = systemMenuDao.queryAllByLimit(svcBean);
+            List<SystemMenuDo> dbMenuList = systemMenuDao.queryAllByLimit(svcBean);
+            List<Integer> dbButtonIds = CollectionUtils.convertList(dbMenuList, SystemMenuDo::getId);
 
             List<ButtonPermissions> buttonPermissions = reqVo.getButtonPermissions() == null ? Collections.emptyList() : reqVo.getButtonPermissions();
+            List<Integer> reqButtons = CollectionUtils.convertList(buttonPermissions, ButtonPermissions::getId);
+
             Set<String> labelList = CollectionUtils.convertSet(buttonPermissions, ButtonPermissions::getLabel);
             if (buttonPermissions.size() != labelList.size()) {
                 throw ServiceExceptionUtil.exception(ErrorCodeConstants.BUTTON_TITLE_EXIST_ERROR);
             }
-            int index = 0;
-            for (ButtonPermissions buttonPermission : buttonPermissions) {
-                if (buttonPermission.getValue() <= systemMenuDos.size()) {
-                    //更新
-                    SystemMenuDo menuDo = systemMenuDos.get(index);
-                    menuDo.setTitle(new ArrayList<>(labelList).get(index));
-                    systemMenuDao.updateButtonTitle(menuDo);
-                } else {
-                    SystemMenuDo menuDo = new SystemMenuDo();
-                    menuDo.setParentId(reqVo.getId());
-                    menuDo.setButtonId(buttonPermission.getValue());
-                    menuDo.setType(MenuTypeEnum.BUTTON.getType());
-                    menuDo.setTitle(buttonPermission.getLabel());
-                    menuDo.setCreator(userId);
-                    menuDo.setUpdater(userId);
-                    systemMenuDao.insertSelective(systemMenuDo);
-                }
-                index++;
+            Set<Integer> valueList = CollectionUtils.convertSet(buttonPermissions, ButtonPermissions::getValue);
+            if (buttonPermissions.size() != valueList.size()) {
+                throw ServiceExceptionUtil.exception(ErrorCodeConstants.BUTTON_ID_EXIST_ERROR);
+            }
+
+            Collection<Integer> delButtons = CollUtil.subtract(dbButtonIds, reqButtons);
+            Collection<Integer> addButtons = CollUtil.subtract(reqButtons, dbButtonIds);
+            Collection<Integer> updateButtons = CollUtil.intersection(reqButtons, dbButtonIds);
+
+            Map<Integer, ButtonPermissions> buttonMap = CollectionUtils.convertMap(buttonPermissions, ButtonPermissions::getId);
+            for (Integer buttonId : delButtons) {
+                systemMenuDao.deleteById(buttonId);
+            }
+            for (Integer buttonId : addButtons) {
+                ButtonPermissions permissions = buttonMap.get(buttonId);
+                SystemMenuDo menuDo = new SystemMenuDo();
+                menuDo.setType(MenuTypeEnum.BUTTON.getType());
+                menuDo.setParentId(reqVo.getId());
+                menuDo.setButtonId(permissions.getValue());
+                menuDo.setTitle(permissions.getLabel());
+                menuDo.setCreator(userId);
+                menuDo.setUpdater(userId);
+                systemMenuDao.insertSelective(systemMenuDo);
+            }
+            for (Integer buttonId : updateButtons) {
+                ButtonPermissions permissions = buttonMap.get(buttonId);
+                SystemMenuDo menuDo = new SystemMenuDo();
+                menuDo.setId(buttonId);
+                menuDo.setButtonId(permissions.getValue());
+                menuDo.setTitle(permissions.getLabel());
+                menuDo.setUpdater(userId);
+                systemMenuDao.updateSelective(menuDo);
             }
         }
         return 1;

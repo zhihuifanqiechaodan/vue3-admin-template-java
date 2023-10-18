@@ -12,10 +12,13 @@ import lombok.Data;
 @Data
 public class ButtonPermissions {
 
-    @ApiModelProperty(value = "按钮名称")
-    private String label;
+    @ApiModelProperty(value = "唯一Id")
+    private Integer Id;
 
     @ApiModelProperty(value = "按钮Id")
     private Integer value;
+
+    @ApiModelProperty(value = "按钮名称")
+    private String label;
 
 }
