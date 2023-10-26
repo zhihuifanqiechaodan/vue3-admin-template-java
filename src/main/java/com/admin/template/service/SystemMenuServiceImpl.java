@@ -212,7 +212,7 @@ public class SystemMenuServiceImpl {
                     menuDo.setTitle(item.getLabel());
                     menuDo.setCreator(userId);
                     menuDo.setUpdater(userId);
-                    systemMenuDao.insertSelective(systemMenuDo);
+                    systemMenuDao.insertSelective(menuDo);
                 }
                 //编辑
                 if (systemMenuDos != null && systemMenuDos.size() > 0) {
