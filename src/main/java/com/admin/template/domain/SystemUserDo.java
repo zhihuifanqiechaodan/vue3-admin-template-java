@@ -13,6 +13,9 @@ import java.util.Date;
 @Data
 public class SystemUserDo {
 
+    /**
+     * 用户Id
+     */
     private Integer id;
     /**
      * 用户名称
@@ -27,7 +30,7 @@ public class SystemUserDo {
      */
     private Integer roleId;
     /**
-     * 角色状态 0：正常 1：禁用
+     * 用户状态 0：正常 1：禁用
      */
     private Integer status;
     /**

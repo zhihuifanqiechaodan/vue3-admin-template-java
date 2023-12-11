@@ -1,6 +1,7 @@
 package com.admin.template.service;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.IdUtil;
 import com.admin.template.bean.SystemMenuSvcBean;
 import com.admin.template.bean.SystemUserMenuSvcBean;
@@ -18,15 +19,16 @@ import com.admin.template.exception.ErrorCodeConstants;
 import com.admin.template.exception.ServiceExceptionUtil;
 import com.admin.template.request.AddMenuReqVo;
 import com.admin.template.request.ButtonPermissions;
+import com.admin.template.request.MenuReqVo;
+import com.admin.template.request.MenuSortReqVo;
 import com.admin.template.utils.CollectionUtils;
+import com.admin.template.utils.ThreadLocalUtil;
 import com.admin.template.vo.SystemMenuSvcVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * @className: SystemServiceImpl
@@ -49,10 +51,10 @@ public class SystemMenuServiceImpl {
     /**
      * 获取导航栏菜单列表
      *
-     * @param userId
      * @return
      */
-    public List<SystemMenuSvcVo> getMenuList(int userId) {
+    public List<SystemMenuSvcVo> getMenuList() {
+        Integer userId = ThreadLocalUtil.getUserId("userId");
         SystemUserDo systemUserDo = systemUserDao.queryById(userId);
         SystemRoleDo systemRoleDo = systemRoleDao.queryById(systemUserDo.getRoleId());
         //超级管理员
@@ -102,12 +104,11 @@ public class SystemMenuServiceImpl {
     /**
      * 新建菜单
      *
-     * @param userId
      * @param reqVo
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer addMenu(int userId, AddMenuReqVo reqVo) {
+    public Integer addMenu(AddMenuReqVo reqVo) {
         if (reqVo.getType().equals(MenuTypeEnum.CATALOGUE.getType())) {
             if (reqVo.getShow() == null || reqVo.getLayout() == null) {
                 throw ServiceExceptionUtil.exception(ErrorCodeConstants.BAD_REQUEST);
@@ -117,14 +118,31 @@ public class SystemMenuServiceImpl {
             if (reqVo.getCache() == null || reqVo.getBreadcrumb() == null || reqVo.getAffix() == null || reqVo.getPath() == null) {
                 throw ServiceExceptionUtil.exception(ErrorCodeConstants.BAD_REQUEST);
             }
+
+            SystemMenuSvcBean svcBean = new SystemMenuSvcBean();
+            svcBean.setPath(reqVo.getPath());
+            List<SystemMenuDo> systemMenuDos = systemMenuDao.queryAllByLimit(svcBean);
+            if (systemMenuDos != null && systemMenuDos.size() > 0) {
+                throw ServiceExceptionUtil.exception(ErrorCodeConstants.PATH_EXIST_ERROR);
+            }
         }
+
+        SystemMenuSvcBean svcBean = new SystemMenuSvcBean();
+        svcBean.setTitle(reqVo.getTitle());
+        List<SystemMenuDo> systemMenuDos = systemMenuDao.queryAllByLimit(svcBean);
+        if (systemMenuDos != null && systemMenuDos.size() > 0) {
+            throw ServiceExceptionUtil.exception(ErrorCodeConstants.TITLE_EXIST_ERROR);
+        }
+
+        Integer userId = ThreadLocalUtil.getUserId("userId");
         SystemMenuDo systemMenuDo = new SystemMenuDo();
         BeanUtil.copyProperties(reqVo, systemMenuDo);
         systemMenuDo.setCreator(userId);
         systemMenuDo.setUpdater(userId);
         systemMenuDo.setCataloguePath(IdUtil.fastSimpleUUID());
         systemMenuDao.insertSelective(systemMenuDo);
-        for (ButtonPermissions buttonPermissions : reqVo.getButtonPermissions()) {
+        List<ButtonPermissions> buttonPermissionsList = reqVo.getButtonPermissions() == null ? Collections.EMPTY_LIST : reqVo.getButtonPermissions();
+        for (ButtonPermissions buttonPermissions : buttonPermissionsList) {
             SystemMenuDo menuDo = new SystemMenuDo();
             menuDo.setParentId(systemMenuDo.getId());
             menuDo.setButtonId(buttonPermissions.getValue());
@@ -132,12 +150,19 @@ public class SystemMenuServiceImpl {
             menuDo.setTitle(buttonPermissions.getLabel());
             menuDo.setCreator(userId);
             menuDo.setUpdater(userId);
-            systemMenuDao.insertSelective(systemMenuDo);
+            systemMenuDao.insertSelective(menuDo);
         }
         return 1;
     }
 
-    public Integer updateMenu(int userId, AddMenuReqVo reqVo) {
+    /**
+     * 编辑菜单
+     *
+     * @param reqVo
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Integer updateMenu(AddMenuReqVo reqVo) {
         if (reqVo.getId() == null) {
             throw ServiceExceptionUtil.exception(ErrorCodeConstants.BAD_REQUEST, "Id不能为空");
         }
@@ -151,22 +176,92 @@ public class SystemMenuServiceImpl {
                 throw ServiceExceptionUtil.exception(ErrorCodeConstants.BAD_REQUEST);
             }
         }
+        Integer userId = ThreadLocalUtil.getUserId("userId");
         //更新菜单、目录
         SystemMenuDo systemMenuDo = new SystemMenuDo();
         BeanUtil.copyProperties(reqVo, systemMenuDo);
         systemMenuDo.setUpdater(userId);
         systemMenuDao.updateSelective(systemMenuDo);
-        //删除菜单目录关联下的button
-        systemMenuDao.deleteByParentId(reqVo.getId());
-        for (ButtonPermissions buttonPermissions : reqVo.getButtonPermissions()) {
-            SystemMenuDo menuDo = new SystemMenuDo();
-            menuDo.setParentId(reqVo.getId());
-            menuDo.setButtonId(buttonPermissions.getValue());
-            menuDo.setType(MenuTypeEnum.BUTTON.getType());
-            menuDo.setTitle(buttonPermissions.getLabel());
-            menuDo.setCreator(userId);
-            menuDo.setUpdater(userId);
-            systemMenuDao.insertSelective(systemMenuDo);
+
+        if (reqVo.getType().equals(MenuTypeEnum.MENU.getType())) {
+            SystemMenuSvcBean svcBean = new SystemMenuSvcBean();
+            svcBean.setParentId(reqVo.getId());
+            svcBean.setDeleted(0);
+            List<SystemMenuDo> dbMenuList = systemMenuDao.queryAllByLimit(svcBean);
+            List<Integer> dbButtonIds = CollectionUtils.convertList(dbMenuList, SystemMenuDo::getId);
+
+            List<ButtonPermissions> buttonPermissions = reqVo.getButtonPermissions() == null ? Collections.emptyList() : reqVo.getButtonPermissions();
+            Set<String> labelList = CollectionUtils.convertSet(buttonPermissions, ButtonPermissions::getLabel);
+            if (buttonPermissions.size() != labelList.size()) {
+                throw ServiceExceptionUtil.exception(ErrorCodeConstants.BUTTON_TITLE_EXIST_ERROR);
+            }
+            Set<Integer> valueList = CollectionUtils.convertSet(buttonPermissions, ButtonPermissions::getValue);
+            if (buttonPermissions.size() != valueList.size()) {
+                throw ServiceExceptionUtil.exception(ErrorCodeConstants.BUTTON_ID_EXIST_ERROR);
+            }
+
+            List<Integer> doneIdList = new ArrayList<>();
+            for (ButtonPermissions item : buttonPermissions) {
+                List<SystemMenuDo> systemMenuDos = CollectionUtils.filterList(dbMenuList, x -> x.getButtonId().equals(item.getValue()) || x.getTitle().equals(item.getLabel()));
+                //新增
+                if (systemMenuDos == null || systemMenuDos.size() == 0) {
+                    SystemMenuDo menuDo = new SystemMenuDo();
+                    menuDo.setType(MenuTypeEnum.BUTTON.getType());
+                    menuDo.setParentId(reqVo.getId());
+                    menuDo.setButtonId(item.getValue());
+                    menuDo.setTitle(item.getLabel());
+                    menuDo.setCreator(userId);
+                    menuDo.setUpdater(userId);
+                    systemMenuDao.insertSelective(menuDo);
+                }
+                //编辑
+                if (systemMenuDos != null && systemMenuDos.size() > 0) {
+                    List<SystemMenuDo> buttonDoList = CollectionUtils.filterList(systemMenuDos, x -> x.getButtonId().equals(item.getValue()));
+                    if (buttonDoList != null && buttonDoList.size() > 0) {
+                        SystemMenuDo menuDo = buttonDoList.get(0);
+                        menuDo.setTitle(item.getLabel());
+                        menuDo.setUpdater(userId);
+                        systemMenuDao.updateSelective(menuDo);
+                        doneIdList.add(menuDo.getId());
+                        continue;
+                    }
+
+                    if (buttonDoList == null || buttonDoList.size() == 0) {
+                        List<SystemMenuDo> titleDoList = CollectionUtils.filterList(systemMenuDos, x -> x.getTitle().equals(item.getLabel()));
+                        SystemMenuDo menuDo = titleDoList.get(0);
+                        menuDo.setButtonId(item.getValue());
+                        menuDo.setUpdater(userId);
+                        systemMenuDao.updateSelective(menuDo);
+                        doneIdList.add(menuDo.getId());
+                    }
+                }
+            }
+            //删除
+            Collection<Integer> delButtons = CollUtil.subtract(dbButtonIds, doneIdList);
+            for (Integer buttonId : delButtons) {
+                systemMenuDao.deleteById(buttonId);
+            }
+        }
+        return 1;
+    }
+
+    /**
+     * 菜单排序
+     *
+     * @param reqVo
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Integer menuSort(MenuReqVo reqVo) {
+        List<MenuSortReqVo> menuSortReqVoList = reqVo.getSortList();
+        Integer userId = ThreadLocalUtil.getUserId("userId");
+        for (MenuSortReqVo item : menuSortReqVoList) {
+            SystemMenuDo systemMenuDo = new SystemMenuDo();
+            systemMenuDo.setId(item.getMenuId());
+            systemMenuDo.setParentId(item.getParentId() == null ? 0 : item.getParentId());
+            systemMenuDo.setSort(item.getSort());
+            systemMenuDo.setUpdater(userId);
+            systemMenuDao.updateSelective(systemMenuDo);
         }
         return 1;
     }

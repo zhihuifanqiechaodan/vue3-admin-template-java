@@ -3,6 +3,8 @@ package com.admin.template.response;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * 系统用户表(SystemUser)出参
  *
@@ -26,6 +28,12 @@ public class UserListRespVo {
 
     @ApiModelProperty(value = "角色状态 0：正常 1：禁用")
     private Integer status;
+
+    @ApiModelProperty(value = "用户关联菜单ids")
+    private List<Integer> menuIds;
+
+    @ApiModelProperty(value = "用户类型 0普通用户，1超级管理员")
+    private Integer type;
 
 }
 

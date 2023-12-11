@@ -8,12 +8,15 @@ import com.admin.template.domain.SystemRoleMenuDo;
 import com.admin.template.request.AddRoleReqVo;
 import com.admin.template.request.UpdateRoleReqVo;
 import com.admin.template.response.RoleListRespVo;
+import com.admin.template.utils.CollectionUtils;
+import com.admin.template.utils.ThreadLocalUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @className: SystemRoleServiceImpl
@@ -43,10 +46,16 @@ public class SystemRoleServiceImpl {
      */
     public List<RoleListRespVo> getRoleList(SystemRoleSvcBean reqVo) {
         List<SystemRoleDo> systemRoleDos = systemRoleDao.queryAllByLimit(reqVo);
+        List<Integer> roleIds = CollectionUtils.convertList(systemRoleDos, SystemRoleDo::getId);
+        List<SystemRoleMenuDo> roleMenuDos = systemRoleMenuDao.queryByRoleIds(roleIds);
+        Map<Integer, List<SystemRoleMenuDo>> roleMenuMap = CollectionUtils.convertMultiMap(roleMenuDos, SystemRoleMenuDo::getRoleId);
         List<RoleListRespVo> respVos = new ArrayList<>();
         for (SystemRoleDo systemRoleDo : systemRoleDos) {
             RoleListRespVo respVo = new RoleListRespVo();
             BeanUtil.copyProperties(systemRoleDo, respVo);
+            List<SystemRoleMenuDo> roleMenuDoList = roleMenuMap.get(respVo.getId());
+            List<Integer> menuIds = CollectionUtils.convertList(roleMenuDoList, SystemRoleMenuDo::getMenuId);
+            respVo.setMenuIds(menuIds);
             respVos.add(respVo);
         }
         return respVos;
@@ -59,7 +68,8 @@ public class SystemRoleServiceImpl {
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer addRole(int userId, AddRoleReqVo reqVo) {
+    public Integer addRole(AddRoleReqVo reqVo) {
+        Integer userId = ThreadLocalUtil.getUserId("userId");
         //新增角色信息
         SystemRoleDo systemRoleDo = new SystemRoleDo();
         systemRoleDo.setName(reqVo.getName());
@@ -82,12 +92,12 @@ public class SystemRoleServiceImpl {
     /**
      * 编辑角色
      *
-     * @param userId
      * @param reqVo
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer updateRole(int userId, UpdateRoleReqVo reqVo) {
+    public Integer updateRole(UpdateRoleReqVo reqVo) {
+        Integer userId = ThreadLocalUtil.getUserId("userId");
         //编辑角色信息
         SystemRoleDo systemRoleDo = new SystemRoleDo();
         systemRoleDo.setId(reqVo.getRoleId());

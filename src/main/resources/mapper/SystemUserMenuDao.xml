@@ -56,16 +56,16 @@
         SELECT
         <include refid="base_columns"/>
         FROM system_user_menu
-        WHERE id = #{id}
+        WHERE deleted = 0 and id = #{id}
     </select>
 
     <!--查询多条-->
-    <select id="queryByIds" resultMap="SystemUserMenuMap">
+    <select id="queryByUserIds" resultMap="SystemUserMenuMap">
         SELECT
         <include refid="base_columns"/>
         FROM system_user_menu
-        WHERE id in
-        <foreach collection="ids" item="item" open="(" separator="," close=")">
+        WHERE deleted = 0 and user_id in
+        <foreach collection="userIds" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
     </select>

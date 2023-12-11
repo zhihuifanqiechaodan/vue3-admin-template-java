@@ -11,10 +11,13 @@ import com.admin.template.domain.SystemUserMenuDo;
 import com.admin.template.exception.ErrorCodeConstants;
 import com.admin.template.exception.ServiceExceptionUtil;
 import com.admin.template.request.AddUserReqVo;
+import com.admin.template.request.UpdatePasswoedReqVo;
 import com.admin.template.request.UpdateUserMenuReqVo;
 import com.admin.template.request.UpdateUserReqVo;
 import com.admin.template.response.UserListRespVo;
 import com.admin.template.utils.CollectionUtils;
+import com.admin.template.utils.ThreadLocalUtil;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,15 +45,17 @@ public class SystemUserServiceImpl {
     private SystemUserMenuDao systemUserMenuDao;
     @Resource
     private SystemRoleMenuDao systemRoleMenuDao;
+    @Resource
+    private PasswordEncoder passwordEncoder;
 
     /**
      * 新增用户
      *
-     * @param reqVo
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer addUser(int userId, AddUserReqVo reqVo) {
+    public Integer addUser(AddUserReqVo reqVo) {
+        Integer userId = ThreadLocalUtil.getUserId("userId");
         List<SystemRoleMenuDo> systemRoleMenuDos = systemRoleMenuDao.queryByRoleId(reqVo.getRoleId());
         if (systemRoleMenuDos == null || systemRoleMenuDos.size() == 0) {
             throw ServiceExceptionUtil.exception(ErrorCodeConstants.NO_ROLE_MENU_ERROR);
@@ -77,28 +82,28 @@ public class SystemUserServiceImpl {
     /**
      * 编辑用户
      *
-     * @param userId
      * @param reqVo
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer updateUser(int userId, UpdateUserReqVo reqVo) {
-        SystemUserDo userDo = systemUserDao.queryById(userId);
+    public Integer updateUser(UpdateUserReqVo reqVo) {
+        Integer userId = ThreadLocalUtil.getUserId("userId");
+        SystemUserDo userDo = systemUserDao.queryById(reqVo.getUserId());
         SystemUserDo systemUserDo = new SystemUserDo();
         BeanUtil.copyProperties(reqVo, systemUserDo);
-        systemUserDo.setId(userId);
+        systemUserDo.setId(reqVo.getUserId());
         systemUserDo.setUpdater(userId);
         systemUserDao.updateSelective(systemUserDo);
         //角色发生变更
         if (!userDo.getRoleId().equals(reqVo.getRoleId())) {
             //删除用户原来的菜单权限
-            systemUserMenuDao.deleteByUserId(userId);
+            systemUserMenuDao.deleteByUserId(reqVo.getUserId());
             //新增用户菜单权限
             List<SystemRoleMenuDo> systemRoleMenuDos = systemRoleMenuDao.queryByRoleId(reqVo.getRoleId());
             List<Integer> menuIds = CollectionUtils.convertList(systemRoleMenuDos, SystemRoleMenuDo::getMenuId);
             for (Integer menuId : menuIds) {
                 SystemUserMenuDo systemUserMenuDo = new SystemUserMenuDo();
-                systemUserMenuDo.setUserId(userId);
+                systemUserMenuDo.setUserId(reqVo.getUserId());
                 systemUserMenuDo.setMenuId(menuId);
                 systemUserMenuDo.setCreator(userId);
                 systemUserMenuDo.setUpdater(userId);
@@ -111,12 +116,12 @@ public class SystemUserServiceImpl {
     /**
      * 编辑用户菜单权限
      *
-     * @param userId
      * @param reqVo
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer updateUserMenu(int userId, UpdateUserMenuReqVo reqVo) {
+    public Integer updateUserMenu(UpdateUserMenuReqVo reqVo) {
+        Integer userId = ThreadLocalUtil.getUserId("userId");
         //删除用户原来的菜单权限
         systemUserMenuDao.deleteByUserId(userId);
         //新增用户菜单权限
@@ -131,23 +136,53 @@ public class SystemUserServiceImpl {
         return 1;
     }
 
+    /**
+     * 用户列表
+     *
+     * @param svcBean
+     * @return
+     */
     public List<UserListRespVo> getUserList(SystemUserSvcBean svcBean) {
         SystemRoleSvcBean roleSvcBean = new SystemRoleSvcBean();
         roleSvcBean.setName(svcBean.getRoleName());
         roleSvcBean.setDeleted(0);
         List<SystemRoleDo> systemRoleDos = systemRoleDao.queryAllByLimit(roleSvcBean);
         List<Integer> roleIds = CollectionUtils.convertList(systemRoleDos, SystemRoleDo::getId);
-        Map<Integer, String> roleMap = CollectionUtils.convertMap(systemRoleDos, SystemRoleDo::getId, SystemRoleDo::getName);
-
+        Map<Integer, SystemRoleDo> roleMap = CollectionUtils.convertMap(systemRoleDos, SystemRoleDo::getId);
         svcBean.setRoleIds(roleIds);
+
+        List<Integer> userIds = CollectionUtils.convertList(systemRoleDos, SystemRoleDo::getId);
+        List<SystemUserMenuDo> systemUserMenuDos = systemUserMenuDao.queryByUserIds(userIds);
+        Map<Integer, List<SystemUserMenuDo>> userMenuMap = CollectionUtils.convertMultiMap(systemUserMenuDos, SystemUserMenuDo::getUserId);
+
         List<SystemUserDo> systemUserDos = systemUserDao.queryAllByLimit(svcBean);
         List<UserListRespVo> respVos = new ArrayList<>();
         for (SystemUserDo systemUserDo : systemUserDos) {
             UserListRespVo respVo = new UserListRespVo();
             BeanUtil.copyProperties(systemUserDo, respVo);
-            respVo.setRoleName(roleMap.get(systemUserDo.getRoleId()));
+            SystemRoleDo systemRoleDo = roleMap.get(systemUserDo.getRoleId());
+            respVo.setRoleName(systemRoleDo.getName());
+            respVo.setType(systemRoleDo.getType());
+            List<SystemUserMenuDo> roleMenuDoList = userMenuMap.get(respVo.getId());
+            List<Integer> menuIds = CollectionUtils.convertList(roleMenuDoList, SystemUserMenuDo::getMenuId);
+            respVo.setMenuIds(menuIds);
             respVos.add(respVo);
         }
         return respVos;
+    }
+
+    /**
+     * 编辑用户密码
+     *
+     * @param reqVo
+     * @return
+     */
+    public Integer updateUserPassword(UpdatePasswoedReqVo reqVo) {
+        Integer userId = ThreadLocalUtil.getUserId("userId");
+        SystemUserDo systemUserDo = new SystemUserDo();
+        systemUserDo.setId(reqVo.getUserId());
+        systemUserDo.setPassword(passwordEncoder.encode(reqVo.getPassword()));
+        systemUserDo.setUpdater(userId);
+        return systemUserDao.updateSelective(systemUserDo);
     }
 }

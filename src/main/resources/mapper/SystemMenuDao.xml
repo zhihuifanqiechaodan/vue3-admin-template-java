@@ -108,7 +108,7 @@
         SELECT
         <include refid="base_columns"/>
         FROM system_menu
-        WHERE id = #{id}
+        WHERE deleted = 0 and id = #{id}
     </select>
 
     <!--查询多条-->
@@ -116,7 +116,7 @@
         SELECT
         <include refid="base_columns"/>
         FROM system_menu
-        WHERE id in
+        WHERE deleted = 0 and id in
         <foreach collection="ids" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
@@ -285,11 +285,10 @@
     </update>
 
     <!--通过主键删除-->
-    <delete id="deleteByParentId">
+    <delete id="deleteById">
         UPDATE system_menu
         SET deleted = 1
-        WHERE `parent_id` = #{parentId}
+        WHERE id = #{id}
     </delete>
-
 </mapper>
 

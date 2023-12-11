@@ -1,6 +1,5 @@
 package com.admin.template.service;
 
-import cn.hutool.core.util.IdUtil;
 import com.admin.template.bean.SystemRoleSvcBean;
 import com.admin.template.bean.SystemUserSvcBean;
 import com.admin.template.dao.SystemMenuDao;
@@ -10,10 +9,12 @@ import com.admin.template.dao.SystemUserMenuDao;
 import com.admin.template.domain.SystemRoleDo;
 import com.admin.template.domain.SystemUserDo;
 import com.admin.template.enums.RoleTypeEnum;
-import com.admin.template.request.LoginReqVo;
-import com.admin.template.response.LoginRespVo;
 import com.admin.template.exception.ErrorCodeConstants;
 import com.admin.template.exception.ServiceExceptionUtil;
+import com.admin.template.request.LoginReqVo;
+import com.admin.template.response.LoginRespVo;
+import com.admin.template.utils.JWTUtils;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +38,8 @@ public class SystemServiceImpl {
     private SystemMenuDao systemMenuDao;
     @Resource
     private SystemUserMenuDao systemUserMenuDao;
+    @Resource
+    private PasswordEncoder passwordEncoder;
 
     /**
      * 登录
@@ -77,7 +80,8 @@ public class SystemServiceImpl {
         //用户存在,密码不正确
         SystemUserDo systemUserDo = systemUserDos.get(0);
         if (systemUserDos != null && systemUserDos.size() > 0) {
-            if (!systemUserDo.getPassword().equals(reqVo.getPassword())) {
+            //解析密码
+            if (!passwordEncoder.matches(reqVo.getPassword(), systemUserDo.getPassword())) {
                 throw ServiceExceptionUtil.exception(ErrorCodeConstants.PASSWORD_ERROR);
             }
         }
@@ -85,8 +89,8 @@ public class SystemServiceImpl {
         LoginRespVo respVo = new LoginRespVo();
         respVo.setId(systemUserDo.getId());
         respVo.setUsername(systemUserDo.getUsername());
-        //todo 从redis中获取token,没有创建token
-        respVo.setToken(IdUtil.fastSimpleUUID());
+        systemUserDo.setPassword(reqVo.getPassword());
+        respVo.setToken(JWTUtils.generateToken(systemUserDo));
         return respVo;
     }
 
@@ -106,16 +110,15 @@ public class SystemServiceImpl {
         //创建用户
         SystemUserDo systemUserDo = new SystemUserDo();
         systemUserDo.setUsername(reqVo.getUsername());
-        systemUserDo.setPassword(reqVo.getPassword());
+        systemUserDo.setPassword(passwordEncoder.encode(reqVo.getPassword()));
         systemUserDo.setRoleId(roleId);
         systemUserDao.insertSelective(systemUserDo);
         //返回用户信息
         LoginRespVo respVo = new LoginRespVo();
         respVo.setId(systemUserDo.getId());
         respVo.setUsername(systemUserDo.getUsername());
-        //todo 创建token,存入redis
-        respVo.setToken(IdUtil.fastSimpleUUID());
+        systemUserDo.setPassword(reqVo.getPassword());
+        respVo.setToken(JWTUtils.generateToken(systemUserDo));
         return respVo;
     }
-
 }

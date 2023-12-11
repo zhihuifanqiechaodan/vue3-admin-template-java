@@ -4,9 +4,14 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Data
-public class LoginReqVo {
+public class UserTokenReqVo {
+
+    @ApiModelProperty(value = "用户Id")
+    @NotNull(message = "用户Id不能为空")
+    private Integer id;
 
     @ApiModelProperty(value = "用户名称")
     @NotBlank(message = "用户名称不能为空")

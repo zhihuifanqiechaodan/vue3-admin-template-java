@@ -20,8 +20,14 @@ public interface ErrorCodeConstants {
     ErrorCode UNKNOWN = new ErrorCode(502, "未知错误");
     ErrorCode SERVER_WARN = new ErrorCode(503, "后端数据警告提示");
 
-    // ========== 用户 模块 1002000000 ==========
+    // ========== 用户模块 1002000000 ==========
     ErrorCode USER_NOT_EXIST = new ErrorCode(1002000000, "登录失败，用户不存在");
     ErrorCode PASSWORD_ERROR = new ErrorCode(1002000001, "登录失败，用户密码错误");
     ErrorCode NO_ROLE_MENU_ERROR = new ErrorCode(1002000002, "创建用户失败，所选角色下不存在菜单信息");
+
+    // ========== 菜单模块 1003000000 ==========
+    ErrorCode TITLE_EXIST_ERROR = new ErrorCode(1003000000, "title名称重复");
+    ErrorCode PATH_EXIST_ERROR = new ErrorCode(1003000001, "path名称重复");
+    ErrorCode BUTTON_TITLE_EXIST_ERROR = new ErrorCode(1003000002, "按钮名称重复");
+    ErrorCode BUTTON_ID_EXIST_ERROR = new ErrorCode(1003000003, "按钮名称重复");
 }
